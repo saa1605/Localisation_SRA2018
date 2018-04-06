@@ -24,17 +24,37 @@ int dest_y = 10;
 int init_x = 0;
 int init_y = 0;
 
+float yaw_error = 0;
+
+int yaw_value,yaw_pwm = 0;
+int yaw_scaling_factor = 0.5;
+int linear_displacement_scaling_factor = 0.5;
+
 float averageEncoderReadings(int ticksLeft, int ticksRight)
 {
  return (ticksLeft + ticksRight) / 2; 
 }
 
-//void set_pwm_to_motors(float error)
-//{
-//  value = Kp*error;
-//  PWML = opt+value;
-//  PWMR = opt-value;
-//}
+void yaw_correction(float destination_angle, float initial_angle)
+{
+  
+  yaw_error = degrees(destination_angle - initial_angle);
+  if(yaw_error>0)
+  {
+    bot_spot_left();
+  }
+  else if(yaw_error<0)
+  {
+    bot_spot_right();
+  }
+  yaw_error = abs(yaw_error);
+  yaw_value = yaw_error;
+  yaw_pwm = map(yaw_value,0,pi,100,400);
+
+  set_pwm1a(yaw_pwm);
+  set_pwm1b(yaw_pwm);
+   
+}
 
 int main()
 {
