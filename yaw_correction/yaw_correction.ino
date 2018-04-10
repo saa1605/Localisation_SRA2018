@@ -13,15 +13,17 @@ float radius_bot = 21.3/2;
 int ppr = 60;
 int yaw_scaling_factor = 0.7;
 int linear_displacement_scaling_factor = 0.3;
-float destination_r = 100;
-
+float current_theta = 0;
+float destination_theta = 0;
+float number_of_rotations = 0;
 int destination_displacement = 0;
 int linear_factor = 0;
 float linear_displacement = 0;
+int yaw_error = 0;
 int pwml = 0;
 int pwmr = 0;
 int error = 0;
-int opt = 370;
+int opt = 350;
 //float error_correction()
 //{
 //  
@@ -41,16 +43,29 @@ int main()
   pwm1_init();
   sei();
 //  destination_r = sqrt((destination_y-current_y)*(destination_y-current_y) + (destination_x-current_x)*(destination_x-current_x));
-
+  destination_theta = 135;
   while(1)
   {
-    Serial.print("left:");Serial.println(ticksL);
-    Serial.print("right:");Serial.println(ticksR);
-    
-    linear_displacement = (((ticksL+ticksR)/2)/ppr) * 2*PI*radius_wheel; 
-    Serial.print("lin dis:");Serial.println(linear_displacement);
-    linear_factor = destination_displacement - linear_displacement;
-    error = ticksL - ticksR; 
+    if(destination_theta - current_theta > 0)
+    {
+      bot_spot_left();
+    }
+    else
+    {
+      bot_spot_right();
+    }
+
+    if(abs(destination_theta - current_theta) <5)
+    {
+      bot_stop();
+    }
+
+    number_of_rotations = abs(ticksL-ticksR)/ppr;
+    current_theta = (2*pi*radius_wheel/radius_bot)*number_of_rotations;
+    yaw_error = abs(destination_theta - degrees(current_theta));
+
+    set_pwm1a(opt + yaw_error);
+    set_pwm1b(opt + yaw_error);
 
   }
   
