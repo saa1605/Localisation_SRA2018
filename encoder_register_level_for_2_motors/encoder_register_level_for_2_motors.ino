@@ -10,6 +10,7 @@ int main()
 
 
   Serial.begin(115200);
+  DDRD = 0x00;
   PORTD |=(1<<6)|(1<<2)|(1<<7)|(1<<3);
   MCUCR |= (1 << ISC01) ;
   GICR |= (1 << INT0)|(1<<INT1) ;
